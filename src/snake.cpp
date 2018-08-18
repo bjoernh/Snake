@@ -54,6 +54,7 @@ Snake::Player::Player(CubeApp * renderCube, int joysticknumber, Vector3f setPosi
   tail.push_back(position);
   position = setPosition;
   velocity = setVelocity;
+  acceleration = Vector3f(0,0,0);
   color = setColor;
   defaultPosition = position;
   defaultVelocity = velocity;
@@ -85,6 +86,8 @@ void Snake::Player::step(){
     for(unsigned int i = 0; i < 3; i++){
       if(position[i] < 0.01 && position[i] > 0)
         position[i] = 0;
+      if(position[i] > VIRTUALCUBEMAXINDEX-0.01)
+        position[i] = VIRTUALCUBEMAXINDEX;
     }
 
     //append to tail
@@ -181,8 +184,9 @@ void Snake::Player::handleJoystick(){
 }
 
 void Snake::Player::render(){
-  for(auto t : tail)
-    ca->setPixel3D(t[0], t[1], t[2], color);
+  for(auto t : tail){
+      ca->setPixel3D(t[0], t[1], t[2], color);
+  }
 }
 
 void Snake::Player::turnLeft(){
