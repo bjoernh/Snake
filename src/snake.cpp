@@ -6,9 +6,11 @@
 #include <cmath>
 
 Snake::Snake() : CubeApp(40){
-  float startSpeed = 0.4;
+  float startSpeed = 0.2;
   players.push_back(new Player(this, 0, getRandomPointOnScreen(top).cast<float>(), Vector3f(0, startSpeed, 0), Color::green(), 10));
   players.push_back(new Player(this, 1, getRandomPointOnScreen(top).cast<float>(), Vector3f(0, startSpeed, 0), Color::green()+Color::red(), 10));
+  players.push_back(new Player(this, 2, getRandomPointOnScreen(top).cast<float>(), Vector3f(0, startSpeed, 0), Color::blue()+Color::red(), 10));
+  players.push_back(new Player(this, 3, getRandomPointOnScreen(top).cast<float>(), Vector3f(0, startSpeed, 0), Color::red(), 10));
   for(int i = 0; i < 20; i++){
     food.push_back(new Food(this, getRandomPointOnScreen(front), Color::randomBlue()*2+Color::randomRed()*0.5));
     food.push_back(new Food(this, getRandomPointOnScreen(right), Color::randomBlue()*2+Color::randomRed()*0.5));
@@ -22,28 +24,35 @@ Snake::Snake() : CubeApp(40){
 bool Snake::loop(){
   static long loopcount = 0;
   clear();
-  for(auto player : players){
-    player->handleJoystick();
-    player->step();
-    //player->checkCollisions(players); //TODO implement!
-    if(player->getIsDead())
-      player->reset();
-    player->render();
+  for(int oversampling = 4; oversampling > 0; oversampling--){
+    for(auto player : players){
+      player->handleJoystick();
+      player->step();
+      for(auto player2 : players){
+        if(player->collidesWith(player2->iPosition()) && player!=player2){
+          player2->die();
+          //std::cout << "died" << std::endl;
+        }
+      }
+      if(player->getIsDead())
+        player->reset();
+      player->render();
+    }
+
+    for (auto f : food){
+      for (auto p : players){
+        if(p->iPosition() == f->getPosition()){
+          p->grow(2);
+          p->speedUp(1.05);
+          f->eat();
+          food.push_back(new Food(this, getRandomPointOnScreen(anyScreen)));
+        }
+      }
+      f->render();
+    }
+    food.erase(std::remove_if(food.begin(),food.end(),[](Food * f){return (f->getIsEaten());}),food.end());
   }
 
-  for (auto f : food){
-    for (auto p : players){
-      if(p->iPosition() == f->getPosition()){
-        p->grow(2);
-        p->speedUp(1.05);
-        f->eat();
-        //create new food
-        food.push_back(new Food(this, getRandomPointOnScreen(anyScreen)));
-      }
-    }
-    f->render();
-  }
-  food.erase(std::remove_if(food.begin(),food.end(),[](Food * f){return (f->getIsEaten());}),food.end());
   render();
   loopcount++;
   return true;
@@ -107,13 +116,13 @@ void Snake::Player::step(){
     if(tail.size() > snakeLength)
       tail.erase(tail.begin(), tail.end() - snakeLength);
   }else{
-    if(dieCounter/10%2){
+    if(dieCounter/40%2){
       color = Color::black();
     }else{
       color = Color::white();
     }
     dieCounter++;
-    if(dieCounter >= 50){
+    if(dieCounter >= 200){
       isDead = true;
     }
   }
@@ -266,7 +275,7 @@ void Snake::Player::grow(unsigned int howMuch){
 }
 
 void Snake::Player::speedUp(float factor){
-  if(velocity.norm() < 1.5f)
+  if(velocity.norm() < 1.0f)
     velocity *= constrain(factor, 1.0f, 2.0f);
 }
 
