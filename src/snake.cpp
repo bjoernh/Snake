@@ -29,9 +29,8 @@ bool Snake::loop(){
       player->handleJoystick();
       player->step();
       for(auto player2 : players){
-        if(player->collidesWith(player2->iPosition()) && player!=player2){
+        if(player->collidesWith(player2->iPosition()) && player!=player2 && !player->getIsDying() && !player2->getIsDying()){
           player2->die();
-          //std::cout << "died" << std::endl;
         }
       }
       if(player->getIsDead())
@@ -182,14 +181,28 @@ void Snake::Player::warp(){
 }
 
 void Snake::Player::handleJoystick(){
-  float newAxis0 = joystick.getAxis(0);
-  if(newAxis0 < 0 && lastAxis0 == 0){
-      turnLeft();
+  if(joystick.isFound()){
+    float newAxis0 = joystick.getAxis(0);
+    if(newAxis0 < 0 && lastAxis0 == 0){
+        turnLeft();
+    }
+    else if(newAxis0 > 0 && lastAxis0 == 0){
+        turnRight();
+    }
+    lastAxis0 = newAxis0;
+  }else{
+    std::cout << "ki step" << std::endl;
+    doKiMove();
   }
-  else if(newAxis0 > 0 && lastAxis0 == 0){
-      turnRight();
+}
+
+void Snake::Player::doKiMove(){
+  int random = rand()%255;
+  if(random == 55){
+    turnLeft();
+  }else if(random == 66){
+    turnRight();
   }
-  lastAxis0 = newAxis0;
 }
 
 void Snake::Player::render(){

@@ -25,6 +25,7 @@ class Snake::Player{
     void move();
     void warp();
     void handleJoystick();
+    void doKiMove();
     void render();
     void turnLeft();
     void turnRight();
