@@ -5,6 +5,10 @@
 #include <iterator>
 #include <cmath>
 
+namespace SnakeColors {
+    const Color
+}
+
 Snake::Snake() : CubeApp(40){
   float startSpeed = 0.2;
   players.push_back(new Player(this, 0, getRandomPointOnScreen(top).cast<float>(), Vector3f(0, startSpeed, 0), Color::green(), 10));
@@ -191,7 +195,6 @@ void Snake::Player::handleJoystick(){
     }
     lastAxis0 = newAxis0;
   }else{
-    std::cout << "ki step" << std::endl;
     doKiMove();
   }
 }
