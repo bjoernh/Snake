@@ -2,7 +2,7 @@
 #include "snake.h"
 
 int main(int argc, char *argv[]) {
-  Snake App1 = Snake();
+  Snake App1;
   App1.start();
 
   while(1) sleep(2);

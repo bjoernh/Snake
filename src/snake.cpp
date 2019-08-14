@@ -5,16 +5,14 @@
 #include <iterator>
 #include <cmath>
 
-namespace SnakeColors {
-    const Color
-}
-
-Snake::Snake() : CubeApp(40){
-  float startSpeed = 0.2;
+Snake::Snake(){
+  float startSpeed = 0.1;
   players.push_back(new Player(this, 0, getRandomPointOnScreen(top).cast<float>(), Vector3f(0, startSpeed, 0), Color::green(), 10));
   players.push_back(new Player(this, 1, getRandomPointOnScreen(top).cast<float>(), Vector3f(0, startSpeed, 0), Color::green()+Color::red(), 10));
   players.push_back(new Player(this, 2, getRandomPointOnScreen(top).cast<float>(), Vector3f(0, startSpeed, 0), Color::blue()+Color::red(), 10));
   players.push_back(new Player(this, 3, getRandomPointOnScreen(top).cast<float>(), Vector3f(0, startSpeed, 0), Color::red(), 10));
+//  for(int i = 4; i < 20; i++)
+//      players.push_back(new Player(this, i, getRandomPointOnScreen(anyScreen).cast<float>(), Vector3f(0, startSpeed, 0), Color::random(), 10));
   for(int i = 0; i < 20; i++){
     food.push_back(new Food(this, getRandomPointOnScreen(front), Color::randomBlue()*2+Color::randomRed()*0.5));
     food.push_back(new Food(this, getRandomPointOnScreen(right), Color::randomBlue()*2+Color::randomRed()*0.5));
@@ -28,13 +26,15 @@ Snake::Snake() : CubeApp(40){
 bool Snake::loop(){
   static long loopcount = 0;
   clear();
-  for(int oversampling = 4; oversampling > 0; oversampling--){
+  for(int oversampling = 8; oversampling > 0; oversampling--){
     for(auto player : players){
       player->handleJoystick();
       player->step();
       for(auto player2 : players){
         if(player->collidesWith(player2->iPosition()) && player!=player2 && !player->getIsDying() && !player2->getIsDying()){
           player2->die();
+          player->grow(player2->getSnakeLength()/4);
+            player->speedUp(1.10);
         }
       }
       if(player->getIsDead())
@@ -61,7 +61,7 @@ bool Snake::loop(){
   return true;
 }
 
-Snake::Player::Player(CubeApp * renderCube, int joysticknumber, Vector3f setPosition, Vector3f setVelocity, Color setColor, unsigned int length) : joystick(joysticknumber){
+Snake::Player::Player(CubeApplication * renderCube, int joysticknumber, Vector3f setPosition, Vector3f setVelocity, Color setColor, unsigned int length) : joystick(joysticknumber){
   ca = renderCube;
   tail.push_back(position);
   position = setPosition;
@@ -309,12 +309,16 @@ bool Snake::Player::getIsDead(){
   return isDead;
 }
 
+int Snake::Player::getSnakeLength(){
+    return snakeLength;
+}
+
 Vector3i Snake::Player::iPosition(){
   return Vector3i(round(position[0]),round(position[1]),round(position[2]));
 }
 
 
-Snake::Food::Food(CubeApp * renderCube, Vector3i setPosition, Color setColor)
+Snake::Food::Food(CubeApplication * renderCube, Vector3i setPosition, Color setColor)
 {
   isEaten = false;
   position = setPosition;
