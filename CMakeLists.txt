@@ -9,7 +9,7 @@ include_directories(${EIGEN3_INCLUDE_DIRS})
 find_package(Boost REQUIRED COMPONENTS thread system)
 include_directories(${Boost_INCLUDE_DIR})
 
-link_directories(/usr/local/lib)
+link_directories(/usr/local/lib)^
 
 set(MAINSRC
   src/snake.cpp
